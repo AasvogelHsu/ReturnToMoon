@@ -1,4 +1,8 @@
 # ReturnToMoon
-資策會專題製作/n
-Title : Return To Moon/n
+資策會專題製作
+
+
+Title : Return To Moon
+
+
 Subtitle : A libGDX game
