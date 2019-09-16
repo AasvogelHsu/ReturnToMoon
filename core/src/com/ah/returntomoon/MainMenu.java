@@ -1,15 +1,18 @@
 package com.ah.returntomoon;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 
 public class MainMenu implements Screen {
@@ -39,8 +42,14 @@ public class MainMenu implements Screen {
         button = new Button(skin,"SpaceShipButton");
         button.setWidth(150);
         button.setHeight(150);
-
         button.setPosition(240,360);
+//        button.addListener(new ClickListener(){
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                super.clicked(event, x, y);
+//                ((Game)Gdx.app.getApplicationListener()).setScreen();
+//            }
+//        });
 
 
 
