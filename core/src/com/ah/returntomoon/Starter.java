@@ -6,7 +6,6 @@ import com.badlogic.gdx.Game;
 public class Starter extends Game {
 
 	private splashscreen splashscreen;
-
 	//轉至splashScreen
 	@Override
 	public void create() {

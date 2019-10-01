@@ -33,30 +33,34 @@ public class MainMenu implements Screen {
 
         texture = new Texture(Gdx.files.internal("background.png"));
         bg = new Image(texture);
+        stage = new Stage();
         skin = new Skin(Gdx.files.internal("menuelements.json")
                 ,new TextureAtlas("menuelements.atlas"));
+
         title = new Image(skin,"title");
         title.setWidth(300);
         title.setHeight(400);
         title.setPosition(280,500);
+
         button = new Button(skin,"SpaceShipButton");
         button.setWidth(150);
         button.setHeight(150);
         button.setPosition(240,360);
-//        button.addListener(new ClickListener(){
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                super.clicked(event, x, y);
-//                ((Game)Gdx.app.getApplicationListener()).setScreen();
-//            }
-//        });
+        button.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                System.out.println("clicked");
+                ((Game)Gdx.app.getApplicationListener()).setScreen(new GameView());
+            }
+        });
 
 
 
-        stage = new Stage();
         stage.addActor(bg);
         stage.addActor(title);
         stage.addActor(button);
+        Gdx.input.setInputProcessor(stage);
 
 
     }
@@ -69,8 +73,6 @@ public class MainMenu implements Screen {
 
         stage.act();
         stage.draw();
-
-
 
     }
 
