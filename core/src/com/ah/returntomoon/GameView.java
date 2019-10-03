@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -17,9 +18,9 @@ public class GameView extends ScreenAdapter {
     Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb;
     float yMax,yCoordBg1,yCoordBg2,stateTime;
     int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5;
-    Animation<TextureRegion> rocket;
+    Animation<TextureRegion> rocketAnimation;
     final int FRAME_COLS = 4,FRAME_ROWS = 1;
-    int RocketX,RocketY;
+    Rectangle Rocket;
     Touchpad touchpad;
     Stage stage;
     TextureRegionDrawable padBG,padKnob;
@@ -54,8 +55,13 @@ public class GameView extends ScreenAdapter {
                 RocketFrame[index++] = tmp[i][j];
             }
         }
-        rocket = new Animation<TextureRegion>(0.15f,RocketFrame);
+        rocketAnimation = new Animation<TextureRegion>(0.15f,RocketFrame);
         stateTime =0f;
+        Rocket = new Rectangle();
+        Rocket.x = Constant.WIDTH/2-50;
+        Rocket.y = Constant.HEIGHT/8-75;
+        Rocket.width = 100;
+        Rocket.height = 150;
 
         //↓Touchpad
         touchpadBg = new Texture("touchpad_bg.png");
@@ -67,9 +73,6 @@ public class GameView extends ScreenAdapter {
         touchpad.setBounds(Constant.WIDTH/2-75,Constant.HEIGHT/10-75,150,150);
         stage.addActor(touchpad);
 
-
-        RocketX = Constant.WIDTH/2-50;
-        RocketY = Constant.HEIGHT/8-75;
 
     }
 
@@ -85,19 +88,18 @@ public class GameView extends ScreenAdapter {
         }
 
         stateTime += delta;
-        TextureRegion currentFrame =rocket.getKeyFrame(stateTime,true);
+        TextureRegion currentFrame =rocketAnimation.getKeyFrame(stateTime,true);
 
         update();
 
         batch.begin();
         batch.draw(bg1,0,yCoordBg1);
         batch.draw(bg2,0,yCoordBg2);
-        batch.draw(currentFrame,RocketX,RocketY,100,150);
+        batch.draw(currentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
         batch.end();
 
         stage.act();
         stage.draw();
-        System.out.println(RocketX+" : "+RocketY);
     }
 
     @Override
@@ -113,22 +115,23 @@ public class GameView extends ScreenAdapter {
         touchpadBg.dispose();
         touchpadKonb.dispose();
 
+
     }
     public void update(){
-        if(touchpad.isTouched()&& RocketX>=0 && RocketX<=Gdx.graphics.getWidth()-100){
-            RocketX += touchpad.getKnobPercentX()*ROCKET_SPEED;
-        }else if(RocketX<0){
-            RocketX=0;
-        }else if (RocketX>Gdx.graphics.getWidth()-100){
-            RocketX=Gdx.graphics.getWidth()-100;
+        if(touchpad.isTouched()&& Rocket.x>=0 && Rocket.x<=Gdx.graphics.getWidth()-Rocket.width){
+            Rocket.x += touchpad.getKnobPercentX()*ROCKET_SPEED;
+        }else if(Rocket.x<0){
+            Rocket.x=0;
+        }else if (Rocket.x>Gdx.graphics.getWidth()-Rocket.width){
+            Rocket.x=Gdx.graphics.getWidth()-100;
         }
 
-        if (touchpad.isTouched() && RocketY>=0 && RocketY<=Gdx.graphics.getHeight()-150){
-            RocketY += touchpad.getKnobPercentY()*ROCKET_SPEED;
-        }else if(RocketY<0) {
-            RocketY = 0;
-        }else if(RocketY>Gdx.graphics.getHeight()-150){
-            RocketY = Gdx.graphics.getHeight()-150;
+        if (touchpad.isTouched() && Rocket.y>=0 && Rocket.y<=Gdx.graphics.getHeight()-Rocket.height){
+            Rocket.y += touchpad.getKnobPercentY()*ROCKET_SPEED;
+        }else if(Rocket.y<0) {
+            Rocket.y = 0;
+        }else if(Rocket.y>Gdx.graphics.getHeight()-Rocket.height){
+            Rocket.y = Gdx.graphics.getHeight()-Rocket.height;
         }
 
     }
