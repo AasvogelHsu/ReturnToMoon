@@ -139,4 +139,8 @@ public class GameView extends ScreenAdapter {
 
     }
 
+    public void findAsteroid(){
+
+    }
+
 }
