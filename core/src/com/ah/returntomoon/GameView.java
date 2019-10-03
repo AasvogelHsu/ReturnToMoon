@@ -68,8 +68,8 @@ public class GameView extends ScreenAdapter {
         stage.addActor(touchpad);
 
 
-        RocketX = Constant.WIDTH/2;
-        RocketY = Constant.HEIGHT/8;
+        RocketX = Constant.WIDTH/2-50;
+        RocketY = Constant.HEIGHT/8-75;
 
     }
 
@@ -92,7 +92,7 @@ public class GameView extends ScreenAdapter {
         batch.begin();
         batch.draw(bg1,0,yCoordBg1);
         batch.draw(bg2,0,yCoordBg2);
-        batch.draw(currentFrame,RocketX-50,RocketY-75,100,150);
+        batch.draw(currentFrame,RocketX,RocketY,100,150);
         batch.end();
 
         stage.act();
@@ -115,20 +115,20 @@ public class GameView extends ScreenAdapter {
 
     }
     public void update(){
-        if(touchpad.isTouched()&& RocketX>=0 && RocketX<=Gdx.graphics.getWidth()-50){
+        if(touchpad.isTouched()&& RocketX>=0 && RocketX<=Gdx.graphics.getWidth()-100){
             RocketX += touchpad.getKnobPercentX()*ROCKET_SPEED;
         }else if(RocketX<0){
             RocketX=0;
-        }else if (RocketX>Gdx.graphics.getWidth()-50){
-            RocketX=Gdx.graphics.getWidth()-50;
+        }else if (RocketX>Gdx.graphics.getWidth()-100){
+            RocketX=Gdx.graphics.getWidth()-100;
         }
 
-        if (touchpad.isTouched() && RocketY>=0 && RocketY<=Gdx.graphics.getHeight()-75){
+        if (touchpad.isTouched() && RocketY>=0 && RocketY<=Gdx.graphics.getHeight()-150){
             RocketY += touchpad.getKnobPercentY()*ROCKET_SPEED;
         }else if(RocketY<0) {
             RocketY = 0;
-        }else if(RocketY>Gdx.graphics.getHeight()-75){
-            RocketY = Gdx.graphics.getHeight()-75;
+        }else if(RocketY>Gdx.graphics.getHeight()-150){
+            RocketY = Gdx.graphics.getHeight()-150;
         }
 
     }
