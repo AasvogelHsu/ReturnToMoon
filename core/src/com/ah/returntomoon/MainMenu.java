@@ -17,15 +17,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MainMenu implements Screen {
 
-
+    private Starter game;
     private Texture texture;
     private Image bg,title;
     private Button button;
     private Skin skin;
     private Stage stage;
 
-    public MainMenu(){
 
+    public MainMenu(Starter game){
+        this.game = game;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class MainMenu implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 System.out.println("clicked");
-                ((Game)Gdx.app.getApplicationListener()).setScreen(new GameView());
+                game.setScreen(new GameView(game));
             }
         });
 

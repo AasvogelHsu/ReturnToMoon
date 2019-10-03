@@ -1,6 +1,5 @@
 package com.ah.returntomoon;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -11,12 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 public class splashscreen implements Screen {
 
+    private Starter game;
     private Texture texture = new Texture(Gdx.files.internal("splashScreen.png"));
     private Stage stage = new Stage();
     private Image image = new Image(texture);
 
-    public splashscreen(){
-
+    public splashscreen(Starter game){
+        this.game = game;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class splashscreen implements Screen {
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
-                            ((Game)Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+                            game.setScreen(new MainMenu(game));
                         }
                     })
                     ));

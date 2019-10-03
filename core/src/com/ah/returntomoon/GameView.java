@@ -11,9 +11,11 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 
 public class GameView extends ScreenAdapter {
 
+    Starter game;
     SpriteBatch batch;
     Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb;
     float yMax,yCoordBg1,yCoordBg2,stateTime;
@@ -25,15 +27,11 @@ public class GameView extends ScreenAdapter {
     Stage stage;
     TextureRegionDrawable padBG,padKnob;
     Touchpad.TouchpadStyle touchpadStyle;
+    Array<Rectangle> Asteroids;
 
 
-
-    public GameView(){}
-
-
-    @Override
-    public void show() {
-
+    public GameView(Starter game){
+        this.game = game;
         batch = new SpriteBatch();
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
@@ -73,6 +71,11 @@ public class GameView extends ScreenAdapter {
         touchpad.setBounds(Constant.WIDTH/2-75,Constant.HEIGHT/10-75,150,150);
         stage.addActor(touchpad);
 
+    }
+
+
+    @Override
+    public void show() {
 
     }
 
