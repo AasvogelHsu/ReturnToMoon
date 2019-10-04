@@ -7,18 +7,21 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.Iterator;
+
 public class GameView extends ScreenAdapter {
 
     Starter game;
     SpriteBatch batch;
     Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb,asteroidASheet;
-    float yMax,yCoordBg1,yCoordBg2,stateTime;
+    float yMax,yCoordBg1,yCoordBg2,stateTime,lastAsteroid_time;
     int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5;
     Animation<TextureRegion> rocketAnimation,asteroidAAnimation;
     final int ROCKET_FRAME_COLS = 4,ROCKET_FRAME_ROWS = 1,ASTEROID_FRAME_COLS = 6,ASTEROID_FRAME_ROWS = 1;
@@ -35,6 +38,7 @@ public class GameView extends ScreenAdapter {
         batch = new SpriteBatch();
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
+        Asteroids = new Array<Rectangle>();
         //↓背景捲動
         bg1 = new Texture("bg_space01.jpg");
         bg2 = new Texture("bg_space01r.jpg");
@@ -94,7 +98,6 @@ public class GameView extends ScreenAdapter {
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         yCoordBg1 -= BACKGROUND_MOVE_SPEED*Gdx.graphics.getDeltaTime();
         yCoordBg2 = yCoordBg1 - yMax;
         if (yCoordBg1 <= 0){
@@ -104,7 +107,7 @@ public class GameView extends ScreenAdapter {
 
         stateTime += delta;
         TextureRegion RocketcurrentFrame = rocketAnimation.getKeyFrame(stateTime,true);
-        TextureRegion ateroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
+        TextureRegion asteroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
 
         update();
 
@@ -112,10 +115,29 @@ public class GameView extends ScreenAdapter {
         batch.draw(bg1,0,yCoordBg1);
         batch.draw(bg2,0,yCoordBg2);
         batch.draw(RocketcurrentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
+        for (Rectangle asteroid : Asteroids){
+            batch.draw(asteroidACurrentFrame,asteroid.x,asteroid.y);
+        }
         batch.end();
 
         stage.act();
         stage.draw();
+
+        if (delta > lastAsteroid_time){
+            findAsteroid();
+        }
+        Iterator<Rectangle> iterator = Asteroids.iterator();
+        while (iterator.hasNext()){
+            Rectangle asteroid = iterator.next();
+            asteroid.y -= 200*delta;
+            if (asteroid.y+Constant.ASTEROID_HEIGHT<0){
+                iterator.remove();
+            }
+            if (asteroid.overlaps(Rocket)){
+                System.out.println("crash!!");
+                iterator.remove();
+            }
+        }
     }
 
     @Override
@@ -156,6 +178,13 @@ public class GameView extends ScreenAdapter {
     }
 
     public void findAsteroid(){
+        Rectangle asteroid = new Rectangle();
+        asteroid.x = MathUtils.random(0,Constant.WIDTH-Constant.ASTEROID_WIDTH);
+        asteroid.y = Constant.HEIGHT;
+        asteroid.width = Constant.ASTEROID_WIDTH;
+        asteroid.height = Constant.ASTEROID_HEIGHT;
+        Asteroids.add(asteroid);
+        lastAsteroid_time = MathUtils.random(0.015555f,0.017555f);
 
     }
 
