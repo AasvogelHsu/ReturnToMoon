@@ -184,7 +184,7 @@ public class GameView extends ScreenAdapter {
         asteroid.width = Constant.ASTEROID_WIDTH;
         asteroid.height = Constant.ASTEROID_HEIGHT;
         Asteroids.add(asteroid);
-        lastAsteroid_time = MathUtils.random(0.015555f,0.017555f);
+        lastAsteroid_time = MathUtils.random(0.015555f,0.0175f);
 
     }
 
