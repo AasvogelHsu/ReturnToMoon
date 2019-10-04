@@ -17,11 +17,11 @@ public class GameView extends ScreenAdapter {
 
     Starter game;
     SpriteBatch batch;
-    Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb;
+    Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb,asteroidASheet;
     float yMax,yCoordBg1,yCoordBg2,stateTime;
     int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5;
-    Animation<TextureRegion> rocketAnimation;
-    final int FRAME_COLS = 4,FRAME_ROWS = 1;
+    Animation<TextureRegion> rocketAnimation,asteroidAAnimation;
+    final int ROCKET_FRAME_COLS = 4,ROCKET_FRAME_ROWS = 1,ASTEROID_FRAME_COLS = 6,ASTEROID_FRAME_ROWS = 1;
     Rectangle Rocket;
     Touchpad touchpad;
     Stage stage;
@@ -44,20 +44,20 @@ public class GameView extends ScreenAdapter {
 
         //↓Rocket動畫
         rocketSheet = new Texture("spaceShipSprite.png");
-        TextureRegion[][] tmp = TextureRegion.split(rocketSheet,
-                rocketSheet.getWidth()/FRAME_COLS,rocketSheet.getHeight()/FRAME_ROWS);
-        TextureRegion[] RocketFrame = new TextureRegion[FRAME_COLS*FRAME_ROWS];
-        int index = 0;
-        for (int i=0 ;i<FRAME_ROWS ;i++){
-            for (int j=0 ;j<FRAME_COLS ;j++){
-                RocketFrame[index++] = tmp[i][j];
+        TextureRegion[][] Rtmp = TextureRegion.split(rocketSheet,
+                rocketSheet.getWidth()/ROCKET_FRAME_COLS,rocketSheet.getHeight()/ROCKET_FRAME_ROWS);
+        TextureRegion[] RocketFrame = new TextureRegion[ROCKET_FRAME_COLS*ROCKET_FRAME_ROWS];
+        int Rindex = 0;
+        for (int i=0 ;i<ROCKET_FRAME_ROWS ;i++){
+            for (int j=0 ;j<ROCKET_FRAME_COLS ;j++){
+                RocketFrame[Rindex++] = Rtmp[i][j];
             }
         }
         rocketAnimation = new Animation<TextureRegion>(0.15f,RocketFrame);
         stateTime =0f;
         Rocket = new Rectangle();
         Rocket.x = Constant.WIDTH/2-50;
-        Rocket.y = Constant.HEIGHT/8-75;
+        Rocket.y = Constant.HEIGHT/6-75;
         Rocket.width = 100;
         Rocket.height = 150;
 
@@ -71,6 +71,18 @@ public class GameView extends ScreenAdapter {
         touchpad.setBounds(Constant.WIDTH/2-75,Constant.HEIGHT/10-75,150,150);
         stage.addActor(touchpad);
 
+        //↓animation of asteroid
+        asteroidASheet = new Texture("asteroidA.png");
+        TextureRegion[][] atmpA = TextureRegion.split(asteroidASheet,
+                asteroidASheet.getWidth()/ASTEROID_FRAME_COLS,asteroidASheet.getHeight()/ASTEROID_FRAME_ROWS);
+        TextureRegion[] AsteroidAFrame = new TextureRegion[ASTEROID_FRAME_COLS*ASTEROID_FRAME_ROWS];
+        int Aindex = 0;
+        for (int i=0 ;i<ASTEROID_FRAME_ROWS ;i++){
+            for (int j=0 ;j<ASTEROID_FRAME_COLS ;j++){
+                AsteroidAFrame[Aindex++] = atmpA[i][j];
+            }
+        }
+        asteroidAAnimation = new Animation<TextureRegion>(0.15f,AsteroidAFrame);
     }
 
 
@@ -91,14 +103,15 @@ public class GameView extends ScreenAdapter {
         }
 
         stateTime += delta;
-        TextureRegion currentFrame =rocketAnimation.getKeyFrame(stateTime,true);
+        TextureRegion RocketcurrentFrame = rocketAnimation.getKeyFrame(stateTime,true);
+        TextureRegion ateroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
 
         update();
 
         batch.begin();
         batch.draw(bg1,0,yCoordBg1);
         batch.draw(bg2,0,yCoordBg2);
-        batch.draw(currentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
+        batch.draw(RocketcurrentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
         batch.end();
 
         stage.act();
@@ -107,6 +120,7 @@ public class GameView extends ScreenAdapter {
 
     @Override
     public void hide() {
+        dispose();
     }
 
     @Override
@@ -117,6 +131,8 @@ public class GameView extends ScreenAdapter {
         rocketSheet.dispose();
         touchpadBg.dispose();
         touchpadKonb.dispose();
+        asteroidASheet.dispose();
+
 
 
     }
