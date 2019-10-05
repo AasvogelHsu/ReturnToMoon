@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
 
@@ -24,7 +25,7 @@ public class GameView extends ScreenAdapter {
     float yMax,yCoordBg1,yCoordBg2,stateTime,lastAsteroid_time;
     int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5;
     Animation<TextureRegion> rocketAnimation,asteroidAAnimation;
-    final int ROCKET_FRAME_COLS = 4,ROCKET_FRAME_ROWS = 1,ASTEROID_FRAME_COLS = 6,ASTEROID_FRAME_ROWS = 1;
+    final int ROCKET_FRAME_COLS = 4,ROCKET_FRAME_ROWS = 1,ASTEROID_FRAME_COLS = 8,ASTEROID_FRAME_ROWS = 1;
     Rectangle Rocket;
     Touchpad touchpad;
     Stage stage;
@@ -76,7 +77,7 @@ public class GameView extends ScreenAdapter {
         stage.addActor(touchpad);
 
         //↓animation of asteroid
-        asteroidASheet = new Texture("asteroidA.png");
+        asteroidASheet = new Texture("asteroidD.png");
         TextureRegion[][] atmpA = TextureRegion.split(asteroidASheet,
                 asteroidASheet.getWidth()/ASTEROID_FRAME_COLS,asteroidASheet.getHeight()/ASTEROID_FRAME_ROWS);
         TextureRegion[] AsteroidAFrame = new TextureRegion[ASTEROID_FRAME_COLS*ASTEROID_FRAME_ROWS];
@@ -123,7 +124,7 @@ public class GameView extends ScreenAdapter {
         stage.act();
         stage.draw();
 
-        if (delta > lastAsteroid_time){
+        if (TimeUtils.nanoTime() - lastAsteroid_time > 1000000000){
             findAsteroid();
         }
         Iterator<Rectangle> iterator = Asteroids.iterator();
@@ -184,7 +185,7 @@ public class GameView extends ScreenAdapter {
         asteroid.width = Constant.ASTEROID_WIDTH;
         asteroid.height = Constant.ASTEROID_HEIGHT;
         Asteroids.add(asteroid);
-        lastAsteroid_time = MathUtils.random(0.015555f,0.0175f);
+        lastAsteroid_time = TimeUtils.nanoTime();
 
     }
 
