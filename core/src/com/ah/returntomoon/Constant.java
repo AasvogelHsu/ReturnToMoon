@@ -7,4 +7,5 @@ public class Constant {
     public static int HEIGHT = Gdx.graphics.getHeight();
     public static int ASTEROID_WIDTH = 64;
     public static int ASTEROID_HEIGHT = 64;
+    public static int ASTEROID_RADIUS = 32;
 }

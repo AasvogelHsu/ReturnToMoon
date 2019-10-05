@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -31,7 +33,7 @@ public class GameView extends ScreenAdapter {
     Stage stage;
     TextureRegionDrawable padBG,padKnob;
     Touchpad.TouchpadStyle touchpadStyle;
-    Array<Rectangle> Asteroids;
+    Array<Circle> Asteroids;
 
 
     public GameView(Starter game){
@@ -39,10 +41,10 @@ public class GameView extends ScreenAdapter {
         batch = new SpriteBatch();
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
-        Asteroids = new Array<Rectangle>();
+        Asteroids = new Array<Circle>();
         //↓背景捲動
-        bg1 = new Texture("bg_space01.jpg");
-        bg2 = new Texture("bg_space01r.jpg");
+        bg1 = new Texture("bg_space.jpg");
+        bg2 = new Texture("bg_space.jpg");
         yMax = 1280;
         yCoordBg1 = yMax;
         yCoordBg2 = 0;
@@ -116,7 +118,7 @@ public class GameView extends ScreenAdapter {
         batch.draw(bg1,0,yCoordBg1);
         batch.draw(bg2,0,yCoordBg2);
         batch.draw(RocketcurrentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
-        for (Rectangle asteroid : Asteroids){
+        for (Circle asteroid : Asteroids){
             batch.draw(asteroidACurrentFrame,asteroid.x,asteroid.y);
         }
         batch.end();
@@ -127,17 +129,19 @@ public class GameView extends ScreenAdapter {
         if (TimeUtils.nanoTime() - lastAsteroid_time > 1000000000){
             findAsteroid();
         }
-        Iterator<Rectangle> iterator = Asteroids.iterator();
+        Iterator<Circle> iterator = Asteroids.iterator();
         while (iterator.hasNext()){
-            Rectangle asteroid = iterator.next();
+            Circle asteroid = iterator.next();
             asteroid.y -= 200*delta;
             if (asteroid.y+Constant.ASTEROID_HEIGHT<0){
                 iterator.remove();
             }
-            if (asteroid.overlaps(Rocket)){
+
+            if (Intersector.overlaps(asteroid,Rocket)){
                 System.out.println("crash!!");
                 iterator.remove();
             }
+
         }
     }
 
@@ -179,11 +183,12 @@ public class GameView extends ScreenAdapter {
     }
 
     public void findAsteroid(){
-        Rectangle asteroid = new Rectangle();
+        Circle asteroid = new Circle();
         asteroid.x = MathUtils.random(0,Constant.WIDTH-Constant.ASTEROID_WIDTH);
         asteroid.y = Constant.HEIGHT;
-        asteroid.width = Constant.ASTEROID_WIDTH;
-        asteroid.height = Constant.ASTEROID_HEIGHT;
+        asteroid.radius = Constant.ASTEROID_RADIUS;
+        //asteroid.width = Constant.ASTEROID_WIDTH;
+        //asteroid.height = Constant.ASTEROID_HEIGHT;
         Asteroids.add(asteroid);
         lastAsteroid_time = TimeUtils.nanoTime();
 
