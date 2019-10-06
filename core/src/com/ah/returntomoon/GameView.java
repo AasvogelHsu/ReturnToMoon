@@ -45,7 +45,7 @@ public class GameView extends ScreenAdapter {
         //↓背景捲動
         bg1 = new Texture("bg_space.jpg");
         bg2 = new Texture("bg_space.jpg");
-        yMax = 1280;
+        yMax = Constant.HEIGHT;
         yCoordBg1 = yMax;
         yCoordBg2 = 0;
 
@@ -115,8 +115,8 @@ public class GameView extends ScreenAdapter {
         update();
 
         batch.begin();
-        batch.draw(bg1,0,yCoordBg1);
-        batch.draw(bg2,0,yCoordBg2);
+        batch.draw(bg1,0,yCoordBg1,Constant.WIDTH,Constant.HEIGHT);
+        batch.draw(bg2,0,yCoordBg2,Constant.WIDTH,Constant.HEIGHT);
         batch.draw(RocketcurrentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
         for (Circle asteroid : Asteroids){
             batch.draw(asteroidACurrentFrame,asteroid.x,asteroid.y);
@@ -139,6 +139,7 @@ public class GameView extends ScreenAdapter {
 
             if (Intersector.overlaps(asteroid,Rocket)){
                 System.out.println("crash!!");
+                Gdx.input.vibrate(500);
                 iterator.remove();
             }
 
