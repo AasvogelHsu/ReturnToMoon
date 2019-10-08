@@ -56,8 +56,6 @@ public class MainMenu implements Screen {
             }
         });
 
-
-
         stage.addActor(bg);
         stage.addActor(title);
         stage.addActor(button);

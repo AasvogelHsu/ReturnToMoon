@@ -5,6 +5,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
@@ -25,15 +27,18 @@ public class GameView extends ScreenAdapter {
     SpriteBatch batch;
     Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb,asteroidASheet;
     float yMax,yCoordBg1,yCoordBg2,stateTime,lastAsteroid_time;
-    int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5;
+    int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5,ROCKET_DURABILITY = 5;
     Animation<TextureRegion> rocketAnimation,asteroidAAnimation;
-    final int ROCKET_FRAME_COLS = 4,ROCKET_FRAME_ROWS = 1,ASTEROID_FRAME_COLS = 8,ASTEROID_FRAME_ROWS = 1;
+    final int ROCKET_FRAME_COLS = 4,ROCKET_FRAME_ROWS = 1,
+            ASTEROID_FRAME_COLS = 8,ASTEROID_FRAME_ROWS = 1;
     Rectangle Rocket;
     Touchpad touchpad;
     Stage stage;
     TextureRegionDrawable padBG,padKnob;
     Touchpad.TouchpadStyle touchpadStyle;
     Array<Circle> Asteroids;
+    ParticleEffect effect;
+    BitmapFont font;
 
 
     public GameView(Starter game){
@@ -52,7 +57,8 @@ public class GameView extends ScreenAdapter {
         //↓Rocket動畫
         rocketSheet = new Texture("spaceShipSprite.png");
         TextureRegion[][] Rtmp = TextureRegion.split(rocketSheet,
-                rocketSheet.getWidth()/ROCKET_FRAME_COLS,rocketSheet.getHeight()/ROCKET_FRAME_ROWS);
+                rocketSheet.getWidth()/ROCKET_FRAME_COLS,
+                rocketSheet.getHeight()/ROCKET_FRAME_ROWS);
         TextureRegion[] RocketFrame = new TextureRegion[ROCKET_FRAME_COLS*ROCKET_FRAME_ROWS];
         int Rindex = 0;
         for (int i=0 ;i<ROCKET_FRAME_ROWS ;i++){
@@ -81,7 +87,8 @@ public class GameView extends ScreenAdapter {
         //↓animation of asteroid
         asteroidASheet = new Texture("asteroidD.png");
         TextureRegion[][] atmpA = TextureRegion.split(asteroidASheet,
-                asteroidASheet.getWidth()/ASTEROID_FRAME_COLS,asteroidASheet.getHeight()/ASTEROID_FRAME_ROWS);
+                asteroidASheet.getWidth()/ASTEROID_FRAME_COLS,
+                asteroidASheet.getHeight()/ASTEROID_FRAME_ROWS);
         TextureRegion[] AsteroidAFrame = new TextureRegion[ASTEROID_FRAME_COLS*ASTEROID_FRAME_ROWS];
         int Aindex = 0;
         for (int i=0 ;i<ASTEROID_FRAME_ROWS ;i++){
@@ -90,6 +97,19 @@ public class GameView extends ScreenAdapter {
             }
         }
         asteroidAAnimation = new Animation<TextureRegion>(0.15f,AsteroidAFrame);
+
+        //↓particle Effect of explosion
+        effect = new ParticleEffect();
+        effect.load(Gdx.files.internal("explosion.p"),Gdx.files.internal(""));
+        effect.setPosition(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2);
+        effect.start();
+
+        //↓ScorePad
+        font = new BitmapFont(Gdx.files.internal("fonts/jsfv1.fnt")
+                ,Gdx.files.internal("fonts/jsfv1.png"),false);
+
+
+
     }
 
 
@@ -113,6 +133,7 @@ public class GameView extends ScreenAdapter {
         TextureRegion asteroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
 
         update();
+        effect.update(delta);
 
         batch.begin();
         batch.draw(bg1,0,yCoordBg1,Constant.WIDTH,Constant.HEIGHT);
@@ -121,6 +142,9 @@ public class GameView extends ScreenAdapter {
         for (Circle asteroid : Asteroids){
             batch.draw(asteroidACurrentFrame,asteroid.x,asteroid.y);
         }
+        effect.draw(batch);
+        font.draw(batch,"Durability : "+ROCKET_DURABILITY,100,100);
+        font.draw(batch,"Distance :",500,100);
         batch.end();
 
         stage.act();
@@ -141,9 +165,11 @@ public class GameView extends ScreenAdapter {
                 System.out.println("crash!!");
                 Gdx.input.vibrate(500);
                 iterator.remove();
+                ROCKET_DURABILITY = ROCKET_DURABILITY - 1;
             }
 
         }
+
     }
 
     @Override
@@ -160,8 +186,8 @@ public class GameView extends ScreenAdapter {
         touchpadBg.dispose();
         touchpadKonb.dispose();
         asteroidASheet.dispose();
-
-
+        effect.dispose();
+        font.dispose();
 
     }
     public void update(){
@@ -170,7 +196,7 @@ public class GameView extends ScreenAdapter {
         }else if(Rocket.x<0){
             Rocket.x=0;
         }else if (Rocket.x>Gdx.graphics.getWidth()-Rocket.width){
-            Rocket.x=Gdx.graphics.getWidth()-100;
+            Rocket.x=Gdx.graphics.getWidth()-Rocket.width;
         }
 
         if (touchpad.isTouched() && Rocket.y>=0 && Rocket.y<=Gdx.graphics.getHeight()-Rocket.height){
