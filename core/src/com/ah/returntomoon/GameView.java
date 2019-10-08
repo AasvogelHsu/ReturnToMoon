@@ -25,12 +25,15 @@ public class GameView extends ScreenAdapter {
 
     Starter game;
     SpriteBatch batch;
-    Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb,asteroidASheet;
+    Texture bg1,bg2,rocketSheet,touchpadBg,touchpadKonb,
+            asteroidASheet,GameOverView;
     float yMax,yCoordBg1,yCoordBg2,stateTime,lastAsteroid_time;
-    int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5,ROCKET_DURABILITY = 5;
+    int BACKGROUND_MOVE_SPEED = 80,ROCKET_SPEED = 5,
+            ROCKET_DURABILITY = 5,STATE,DISTANCE=0;
     Animation<TextureRegion> rocketAnimation,asteroidAAnimation;
     final int ROCKET_FRAME_COLS = 4,ROCKET_FRAME_ROWS = 1,
-            ASTEROID_FRAME_COLS = 8,ASTEROID_FRAME_ROWS = 1;
+            ASTEROID_FRAME_COLS = 8,ASTEROID_FRAME_ROWS = 1,
+            START = 0,RUNING = 1,GAME_OVER=2;
     Rectangle Rocket;
     Touchpad touchpad;
     Stage stage;
@@ -39,12 +42,14 @@ public class GameView extends ScreenAdapter {
     Array<Circle> Asteroids;
     ParticleEffect effect;
     BitmapFont font;
+    boolean effectover = false;
 
 
     public GameView(Starter game){
         this.game = game;
         batch = new SpriteBatch();
         stage = new Stage();
+        STATE = RUNING;
         Gdx.input.setInputProcessor(stage);
         Asteroids = new Array<Circle>();
         //↓背景捲動
@@ -71,6 +76,7 @@ public class GameView extends ScreenAdapter {
         Rocket = new Rectangle();
         Rocket.x = Constant.WIDTH/2-50;
         Rocket.y = Constant.HEIGHT/6-75;
+        Rocket.setCenter(Rocket.x,Rocket.y);
         Rocket.width = 100;
         Rocket.height = 150;
 
@@ -101,13 +107,15 @@ public class GameView extends ScreenAdapter {
         //↓particle Effect of explosion
         effect = new ParticleEffect();
         effect.load(Gdx.files.internal("explosion.p"),Gdx.files.internal(""));
-        effect.setPosition(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2);
+        effect.allowCompletion();
         effect.start();
 
         //↓ScorePad
         font = new BitmapFont(Gdx.files.internal("fonts/jsfv1.fnt")
                 ,Gdx.files.internal("fonts/jsfv1.png"),false);
 
+        //↓GAME_OVER VIEW　
+        GameOverView = new Texture("gameover.jpg");
 
 
     }
@@ -120,55 +128,105 @@ public class GameView extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        yCoordBg1 -= BACKGROUND_MOVE_SPEED*Gdx.graphics.getDeltaTime();
-        yCoordBg2 = yCoordBg1 - yMax;
-        if (yCoordBg1 <= 0){
-            yCoordBg1 = yMax;
-            yCoordBg2 = 0;
+        switch (STATE){
+            case START :
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                batch.begin();
+                batch.draw(bg1,0,0,Constant.WIDTH,Constant.HEIGHT);
+                font.draw(batch,"Tap anywhere to begin",Constant.WIDTH/4,Constant.HEIGHT/4);
+                batch.end();
+                if (Gdx.input.isTouched()){
+                    STATE = RUNING;
+                }
+                break;
+
+            case RUNING :
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                yCoordBg1 -= BACKGROUND_MOVE_SPEED*Gdx.graphics.getDeltaTime();
+                yCoordBg2 = yCoordBg1 - yMax;
+                if (yCoordBg1 <= 0){
+                    yCoordBg1 = yMax;
+                    yCoordBg2 = 0;
+                }
+                DISTANCE += delta*60;
+
+                stateTime += delta;
+                TextureRegion RocketcurrentFrame = rocketAnimation.getKeyFrame(stateTime,true);
+                TextureRegion asteroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
+
+                update();
+
+                batch.begin();
+                batch.draw(bg1,0,yCoordBg1,Constant.WIDTH,Constant.HEIGHT);
+                batch.draw(bg2,0,yCoordBg2,Constant.WIDTH,Constant.HEIGHT);
+                batch.draw(RocketcurrentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
+                for (Circle asteroid : Asteroids){
+                    batch.draw(asteroidACurrentFrame,asteroid.x,asteroid.y);
+                }
+                font.draw(batch,"Durability : "+ROCKET_DURABILITY,100,100);
+                font.draw(batch,"Distance : "+DISTANCE,500,100);
+                batch.end();
+
+                stage.act();
+                stage.draw();
+
+                if (TimeUtils.nanoTime() - lastAsteroid_time > 1000000000){
+                    findAsteroid();
+                }
+                Iterator<Circle> iterator = Asteroids.iterator();
+                while (iterator.hasNext()){
+                    Circle asteroid = iterator.next();
+                    asteroid.y -= 200*delta;
+                    if (asteroid.y+Constant.ASTEROID_RADIUS<0){
+                        iterator.remove();
+                    }
+
+                    if (Intersector.overlaps(asteroid,Rocket)){
+                        System.out.println("crash!!");
+                        Gdx.input.vibrate(500);
+                        iterator.remove();
+                        ROCKET_DURABILITY = ROCKET_DURABILITY - 1;
+
+                    }
+                    if (ROCKET_DURABILITY == 0 ){
+
+                        effect.setPosition(Rocket.x+Rocket.width,Rocket.y+Rocket.height);
+                        effect.update(delta);
+
+                        batch.begin();
+                        effect.draw(batch);
+                        batch.end();
+                        if (effect.isComplete()) effectover = true;
+                    }
+                    if (effectover){
+                        STATE = GAME_OVER;
+                        effectover = !effectover;
+                        effect.reset();
+                    }
+
+                }break;
+            case GAME_OVER :
+                batch.begin();
+                batch.draw(bg1, 0, yCoordBg1, Constant.WIDTH, Constant.HEIGHT);
+                batch.draw(bg2, 0, yCoordBg2, Constant.WIDTH, Constant.HEIGHT);
+                batch.draw(GameOverView, Constant.WIDTH / 2 - GameOverView.getWidth() / 2,
+                        Constant.HEIGHT / 2 - GameOverView.getHeight() / 2);
+                font.draw(batch, "Tap anywhere to restart", Constant.WIDTH / 4, Constant.HEIGHT / 4);
+                batch.end();
+                if (Gdx.input.isTouched()) {
+                    ROCKET_DURABILITY = 5;
+                    yCoordBg1 = yMax;
+                    yCoordBg2 = 0;
+                    Asteroids = new Array<Circle>();
+                    DISTANCE = 0;
+                    Rocket.x = Constant.WIDTH/2-50;
+                    Rocket.y = Constant.HEIGHT/6-75;
+                    STATE = START;
+                    }
+
+                break;
         }
 
-        stateTime += delta;
-        TextureRegion RocketcurrentFrame = rocketAnimation.getKeyFrame(stateTime,true);
-        TextureRegion asteroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
-
-        update();
-        effect.update(delta);
-
-        batch.begin();
-        batch.draw(bg1,0,yCoordBg1,Constant.WIDTH,Constant.HEIGHT);
-        batch.draw(bg2,0,yCoordBg2,Constant.WIDTH,Constant.HEIGHT);
-        batch.draw(RocketcurrentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
-        for (Circle asteroid : Asteroids){
-            batch.draw(asteroidACurrentFrame,asteroid.x,asteroid.y);
-        }
-        effect.draw(batch);
-        font.draw(batch,"Durability : "+ROCKET_DURABILITY,100,100);
-        font.draw(batch,"Distance :",500,100);
-        batch.end();
-
-        stage.act();
-        stage.draw();
-
-        if (TimeUtils.nanoTime() - lastAsteroid_time > 1000000000){
-            findAsteroid();
-        }
-        Iterator<Circle> iterator = Asteroids.iterator();
-        while (iterator.hasNext()){
-            Circle asteroid = iterator.next();
-            asteroid.y -= 200*delta;
-            if (asteroid.y+Constant.ASTEROID_HEIGHT<0){
-                iterator.remove();
-            }
-
-            if (Intersector.overlaps(asteroid,Rocket)){
-                System.out.println("crash!!");
-                Gdx.input.vibrate(500);
-                iterator.remove();
-                ROCKET_DURABILITY = ROCKET_DURABILITY - 1;
-            }
-
-        }
 
     }
 
@@ -211,11 +269,9 @@ public class GameView extends ScreenAdapter {
 
     public void findAsteroid(){
         Circle asteroid = new Circle();
-        asteroid.x = MathUtils.random(0,Constant.WIDTH-Constant.ASTEROID_WIDTH);
+        asteroid.x = MathUtils.random(0,Constant.WIDTH-Constant.ASTEROID_RADIUS*2);
         asteroid.y = Constant.HEIGHT;
         asteroid.radius = Constant.ASTEROID_RADIUS;
-        //asteroid.width = Constant.ASTEROID_WIDTH;
-        //asteroid.height = Constant.ASTEROID_HEIGHT;
         Asteroids.add(asteroid);
         lastAsteroid_time = TimeUtils.nanoTime();
 
