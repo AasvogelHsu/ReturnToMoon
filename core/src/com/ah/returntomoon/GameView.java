@@ -13,8 +13,12 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -36,13 +40,15 @@ public class GameView extends ScreenAdapter {
             START = 0,RUNING = 1,GAME_OVER=2;
     Rectangle Rocket;
     Touchpad touchpad;
-    Stage stage;
+    Stage stage,stageGameOver;
     TextureRegionDrawable padBG,padKnob;
     Touchpad.TouchpadStyle touchpadStyle;
     Array<Circle> Asteroids;
     ParticleEffect effect;
     BitmapFont font;
     boolean effectover = false;
+    Skin skin;
+    TextButton button;
 
 
     public GameView(Starter game){
@@ -50,7 +56,6 @@ public class GameView extends ScreenAdapter {
         batch = new SpriteBatch();
         stage = new Stage();
         STATE = RUNING;
-        Gdx.input.setInputProcessor(stage);
         Asteroids = new Array<Circle>();
         //↓背景捲動
         bg1 = new Texture("bg_space.jpg");
@@ -89,6 +94,7 @@ public class GameView extends ScreenAdapter {
         touchpad = new Touchpad(20f,touchpadStyle);
         touchpad.setBounds(Constant.WIDTH/2-75,Constant.HEIGHT/10-75,150,150);
         stage.addActor(touchpad);
+        Gdx.input.setInputProcessor(stage);
 
         //↓animation of asteroid
         asteroidASheet = new Texture("asteroidD.png");
@@ -115,7 +121,30 @@ public class GameView extends ScreenAdapter {
                 ,Gdx.files.internal("fonts/jsfv1.png"),false);
 
         //↓GAME_OVER VIEW　
-        GameOverView = new Texture("gameover.jpg");
+        GameOverView = new Texture("gameover.png");
+        skin = new Skin(Gdx.files.internal("uiskin-simple.json"));
+        stageGameOver = new Stage();
+        button = new TextButton("Try Again",skin,"default");
+        button.setWidth(200);
+        button.setHeight(40);
+        button.setPosition(Constant.WIDTH/2-100,Constant.HEIGHT/4-10);
+        button.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                ROCKET_DURABILITY = 5;
+                yCoordBg1 = yMax;
+                yCoordBg2 = 0;
+                Asteroids = new Array<Circle>();
+                DISTANCE = 0;
+                Rocket.x = Constant.WIDTH/2-50;
+                Rocket.y = Constant.HEIGHT/6-75;
+                STATE = START;
+            }
+        });
+        stageGameOver.addActor(button);
+
+
 
 
     }
@@ -204,26 +233,18 @@ public class GameView extends ScreenAdapter {
                         effect.reset();
                     }
 
-                }break;
+                }
+                break;
             case GAME_OVER :
+                Gdx.input.setInputProcessor(stageGameOver);
                 batch.begin();
                 batch.draw(bg1, 0, yCoordBg1, Constant.WIDTH, Constant.HEIGHT);
                 batch.draw(bg2, 0, yCoordBg2, Constant.WIDTH, Constant.HEIGHT);
                 batch.draw(GameOverView, Constant.WIDTH / 2 - GameOverView.getWidth() / 2,
                         Constant.HEIGHT / 2 - GameOverView.getHeight() / 2);
-                font.draw(batch, "Tap anywhere to restart", Constant.WIDTH / 4, Constant.HEIGHT / 4);
                 batch.end();
-                if (Gdx.input.isTouched()) {
-                    ROCKET_DURABILITY = 5;
-                    yCoordBg1 = yMax;
-                    yCoordBg2 = 0;
-                    Asteroids = new Array<Circle>();
-                    DISTANCE = 0;
-                    Rocket.x = Constant.WIDTH/2-50;
-                    Rocket.y = Constant.HEIGHT/6-75;
-                    STATE = START;
-                    }
-
+                stageGameOver.act();
+                stageGameOver.draw();
                 break;
         }
 
@@ -246,6 +267,10 @@ public class GameView extends ScreenAdapter {
         asteroidASheet.dispose();
         effect.dispose();
         font.dispose();
+        stageGameOver.dispose();
+        stage.dispose();
+        skin.dispose();
+
 
     }
     public void update(){
