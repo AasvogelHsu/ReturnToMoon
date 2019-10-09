@@ -2,6 +2,7 @@ package com.ah.returntomoon;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -79,11 +80,10 @@ public class GameView extends ScreenAdapter {
         rocketAnimation = new Animation<TextureRegion>(0.15f,RocketFrame);
         stateTime =0f;
         Rocket = new Rectangle();
-        Rocket.x = Constant.WIDTH/2-50;
-        Rocket.y = Constant.HEIGHT/6-75;
-        Rocket.setCenter(Rocket.x,Rocket.y);
         Rocket.width = 100;
         Rocket.height = 150;
+        Rocket.x = Constant.WIDTH/2;
+        Rocket.y = Constant.HEIGHT/6;
 
         //↓Touchpad
         touchpadBg = new Texture("touchpad_bg.png");
@@ -94,7 +94,6 @@ public class GameView extends ScreenAdapter {
         touchpad = new Touchpad(20f,touchpadStyle);
         touchpad.setBounds(Constant.WIDTH/2-75,Constant.HEIGHT/10-75,150,150);
         stage.addActor(touchpad);
-        Gdx.input.setInputProcessor(stage);
 
         //↓animation of asteroid
         asteroidASheet = new Texture("asteroidD.png");
@@ -125,8 +124,9 @@ public class GameView extends ScreenAdapter {
         skin = new Skin(Gdx.files.internal("uiskin-simple.json"));
         stageGameOver = new Stage();
         button = new TextButton("Try Again",skin,"default");
+        button.setColor(Color.BLACK);
         button.setWidth(200);
-        button.setHeight(40);
+        button.setHeight(50);
         button.setPosition(Constant.WIDTH/2-100,Constant.HEIGHT/4-10);
         button.addListener(new ClickListener(){
             @Override
@@ -137,8 +137,8 @@ public class GameView extends ScreenAdapter {
                 yCoordBg2 = 0;
                 Asteroids = new Array<Circle>();
                 DISTANCE = 0;
-                Rocket.x = Constant.WIDTH/2-50;
-                Rocket.y = Constant.HEIGHT/6-75;
+                Rocket.x = Constant.WIDTH/2;
+                Rocket.y = Constant.HEIGHT/6;
                 STATE = START;
             }
         });
@@ -162,7 +162,6 @@ public class GameView extends ScreenAdapter {
                 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
                 batch.begin();
                 batch.draw(bg1,0,0,Constant.WIDTH,Constant.HEIGHT);
-                font.draw(batch,"Tap anywhere to begin",Constant.WIDTH/4,Constant.HEIGHT/4);
                 batch.end();
                 if (Gdx.input.isTouched()){
                     STATE = RUNING;
@@ -171,6 +170,7 @@ public class GameView extends ScreenAdapter {
 
             case RUNING :
                 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                Gdx.input.setInputProcessor(stage);
                 yCoordBg1 -= BACKGROUND_MOVE_SPEED*Gdx.graphics.getDeltaTime();
                 yCoordBg2 = yCoordBg1 - yMax;
                 if (yCoordBg1 <= 0){
