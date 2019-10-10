@@ -51,6 +51,7 @@ public class GameView extends ScreenAdapter {
     Skin skin;
     TextButton button;
     float initialY = 0;
+    Color origin;
 
 
     public GameView(Starter game){
@@ -119,7 +120,7 @@ public class GameView extends ScreenAdapter {
         //↓ScorePad
         font = new BitmapFont(Gdx.files.internal("fonts/jsfv1.fnt")
                 ,Gdx.files.internal("fonts/jsfv1.png"),false);
-
+        origin = font.getColor();
         //↓GAME_OVER VIEW　
         GameOverView = new Texture("gameover.png");
         skin = new Skin(Gdx.files.internal("uiskin-simple.json"));
@@ -170,6 +171,7 @@ public class GameView extends ScreenAdapter {
                 if (initialY >= Rocket.y+40){
                     STATE = RUNING;
                     initialY = 0;
+                    font.setColor(Color.ORANGE);
                 }
                 break;
 
@@ -219,7 +221,7 @@ public class GameView extends ScreenAdapter {
                         ROCKET_DURABILITY = ROCKET_DURABILITY - 1;
 
                     }
-                    if (ROCKET_DURABILITY == 0 ){
+                    if (ROCKET_DURABILITY <= 0 ){
 
                         effect.setPosition(Rocket.x+Rocket.width,Rocket.y+Rocket.height);
                         effect.update(delta);
@@ -239,11 +241,14 @@ public class GameView extends ScreenAdapter {
                 break;
             case GAME_OVER :
                 Gdx.input.setInputProcessor(stageGameOver);
+
                 batch.begin();
                 batch.draw(bg1, 0, yCoordBg1, Constant.WIDTH, Constant.HEIGHT);
                 batch.draw(bg2, 0, yCoordBg2, Constant.WIDTH, Constant.HEIGHT);
                 batch.draw(GameOverView, Constant.WIDTH / 2 - GameOverView.getWidth() / 2,
                         Constant.HEIGHT / 2 - GameOverView.getHeight() / 2);
+                font.setColor(Color.BLACK);
+                font.draw(batch,"Distance : "+DISTANCE,Constant.WIDTH/2-100,Constant.HEIGHT/2);
                 batch.end();
                 stageGameOver.act();
                 stageGameOver.draw();
