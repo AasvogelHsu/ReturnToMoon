@@ -82,7 +82,7 @@ public class GameView extends ScreenAdapter {
         Rocket = new Rectangle();
         Rocket.width = 100;
         Rocket.height = 150;
-        Rocket.x = Constant.WIDTH/2;
+        Rocket.x = Constant.WIDTH/2-90;
         Rocket.y = Constant.HEIGHT/6;
 
         //↓Touchpad
@@ -137,7 +137,7 @@ public class GameView extends ScreenAdapter {
                 yCoordBg2 = 0;
                 Asteroids = new Array<Circle>();
                 DISTANCE = 0;
-                Rocket.x = Constant.WIDTH/2;
+                Rocket.x = Constant.WIDTH/2-90;
                 Rocket.y = Constant.HEIGHT/6;
                 STATE = START;
             }
@@ -188,7 +188,7 @@ public class GameView extends ScreenAdapter {
                 batch.begin();
                 batch.draw(bg1,0,yCoordBg1,Constant.WIDTH,Constant.HEIGHT);
                 batch.draw(bg2,0,yCoordBg2,Constant.WIDTH,Constant.HEIGHT);
-                batch.draw(RocketcurrentFrame,Rocket.x,Rocket.y,Rocket.width,Rocket.height);
+                batch.draw(RocketcurrentFrame,Rocket.x+40,Rocket.y+40,100,150);
                 for (Circle asteroid : Asteroids){
                     batch.draw(asteroidACurrentFrame,asteroid.x,asteroid.y);
                 }
@@ -274,20 +274,20 @@ public class GameView extends ScreenAdapter {
 
     }
     public void update(){
-        if(touchpad.isTouched()&& Rocket.x>=0 && Rocket.x<=Gdx.graphics.getWidth()-Rocket.width){
+        if(touchpad.isTouched()&& Rocket.x>=-40 && Rocket.x<=Gdx.graphics.getWidth()-Rocket.width-40){
             Rocket.x += touchpad.getKnobPercentX()*ROCKET_SPEED;
-        }else if(Rocket.x<0){
-            Rocket.x=0;
-        }else if (Rocket.x>Gdx.graphics.getWidth()-Rocket.width){
-            Rocket.x=Gdx.graphics.getWidth()-Rocket.width;
+        }else if(Rocket.x<-40){
+            Rocket.x=-40;
+        }else if (Rocket.x>Gdx.graphics.getWidth()-Rocket.width-40){
+            Rocket.x=Gdx.graphics.getWidth()-Rocket.width-40;
         }
 
-        if (touchpad.isTouched() && Rocket.y>=0 && Rocket.y<=Gdx.graphics.getHeight()-Rocket.height){
+        if (touchpad.isTouched() && Rocket.y>=-40 && Rocket.y<=Gdx.graphics.getHeight()-Rocket.height-40){
             Rocket.y += touchpad.getKnobPercentY()*ROCKET_SPEED;
-        }else if(Rocket.y<0) {
-            Rocket.y = 0;
-        }else if(Rocket.y>Gdx.graphics.getHeight()-Rocket.height){
-            Rocket.y = Gdx.graphics.getHeight()-Rocket.height;
+        }else if(Rocket.y<-40) {
+            Rocket.y = -40;
+        }else if(Rocket.y>Gdx.graphics.getHeight()-Rocket.height-40){
+            Rocket.y = Gdx.graphics.getHeight()-Rocket.height-40;
         }
 
     }
