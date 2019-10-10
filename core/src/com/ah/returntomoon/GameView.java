@@ -50,13 +50,14 @@ public class GameView extends ScreenAdapter {
     boolean effectover = false;
     Skin skin;
     TextButton button;
+    float initialY = 0;
 
 
     public GameView(Starter game){
         this.game = game;
         batch = new SpriteBatch();
         stage = new Stage();
-        STATE = RUNING;
+        STATE = START;
         Asteroids = new Array<Circle>();
         //↓背景捲動
         bg1 = new Texture("bg_space.jpg");
@@ -137,15 +138,10 @@ public class GameView extends ScreenAdapter {
                 yCoordBg2 = 0;
                 Asteroids = new Array<Circle>();
                 DISTANCE = 0;
-                Rocket.x = Constant.WIDTH/2-90;
-                Rocket.y = Constant.HEIGHT/6;
                 STATE = START;
             }
         });
         stageGameOver.addActor(button);
-
-
-
 
     }
 
@@ -157,14 +153,23 @@ public class GameView extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        stateTime += delta;
+        TextureRegion RocketcurrentFrame = rocketAnimation.getKeyFrame(stateTime,true);
+        TextureRegion asteroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
+
         switch (STATE){
             case START :
+                Rocket.x = Constant.WIDTH/2-90;
+                Rocket.y = Constant.HEIGHT/6;
                 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
                 batch.begin();
                 batch.draw(bg1,0,0,Constant.WIDTH,Constant.HEIGHT);
+                batch.draw(RocketcurrentFrame,Rocket.x+40,initialY,100,150);
                 batch.end();
-                if (Gdx.input.isTouched()){
+                initialY = initialY+3;
+                if (initialY >= Rocket.y+40){
                     STATE = RUNING;
+                    initialY = 0;
                 }
                 break;
 
@@ -179,9 +184,6 @@ public class GameView extends ScreenAdapter {
                 }
                 DISTANCE += delta*60;
 
-                stateTime += delta;
-                TextureRegion RocketcurrentFrame = rocketAnimation.getKeyFrame(stateTime,true);
-                TextureRegion asteroidACurrentFrame = asteroidAAnimation.getKeyFrame(stateTime,true);
 
                 update();
 
