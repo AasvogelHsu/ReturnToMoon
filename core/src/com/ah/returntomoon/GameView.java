@@ -226,7 +226,10 @@ public class GameView extends ScreenAdapter {
                         effect.setPosition(Rocket.x+Rocket.width,Rocket.y+Rocket.height);
                         effect.update(delta);
 
+                        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
                         batch.begin();
+                        batch.draw(bg1,0,yCoordBg1,Constant.WIDTH,Constant.HEIGHT);
+                        batch.draw(bg2,0,yCoordBg2,Constant.WIDTH,Constant.HEIGHT);
                         effect.draw(batch);
                         batch.end();
                         if (effect.isComplete()) effectover = true;
